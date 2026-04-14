@@ -1,0 +1,9 @@
+[settings]
+color = true
+experimental = true
+
+[tools]
+node = "latest"
+opencode = "latest"
+rust = "latest"
+"npm:@google/gemini-cli" = { version = "latest", depends = ["node"] }
