@@ -1,0 +1,25 @@
+FROM ghcr.io/ublue-os/fedora-toolbox:latest
+
+# 1. Install system dependencies & mise
+RUN dnf config-manager addrepo --from-repofile=https://mise.jdx.dev/rpm/mise.repo && \
+    dnf install -y git gcc gcc-c++ make pkgconf openssl-devel sqlite-devel curl unzip libatomic vim mise && \
+    dnf clean all
+
+# 2. Bake in our GitOps configuration
+RUN mkdir -p /etc/mise
+COPY mise.global.toml /etc/mise/config.toml
+COPY setup.sh /etc/mise/setup.sh
+RUN chmod +x /etc/mise/setup.sh
+
+# 3. Pre-install tools globally (Bakes them into the image)
+# We set these so mise knows where to put the baked-in tools
+# and we use system-wide paths to keep them isolated from the host home
+ENV MISE_DATA_DIR=/usr/local/share/mise
+ENV MISE_CONFIG_DIR=/etc/mise
+ENV MISE_CACHE_DIR=/usr/local/share/mise/cache
+
+RUN mise install
+
+# 4. Hand over ownership to the devbox user (UID 1000)
+# This allows the user to run 'mise install' and update the cache without permission issues.
+RUN chown -R 1000:1000 /usr/local/share/mise /etc/mise
