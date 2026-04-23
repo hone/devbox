@@ -7,3 +7,4 @@ node = "latest"
 opencode = "latest"
 rust = "latest"
 "npm:@google/gemini-cli" = { version = "latest", depends = ["node"] }
+"aqua:helix-editor/helix" = { version = "latest" }
