@@ -24,3 +24,7 @@ RUN mise install
 # 4. Hand over ownership to the devbox user (UID 1000)
 # This allows the user to run 'mise install' and update the cache without permission issues.
 RUN chown -R 1000:1000 /usr/local/share/mise /etc/mise
+
+# Add docker to host
+COPY docker.sh /usr/local/bin/docker
+RUN chmod +x /usr/local/bin/docker
