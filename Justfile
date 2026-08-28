@@ -3,7 +3,7 @@ default_env := 'devbox'
 
 # Bake the base image (the slow part, run once or after config changes)
 build env=default_env:
-    podman build -t {{env}}-base:latest {{env}}
+    podman build --pull -t {{env}}-base:latest {{env}}
 
 # Create the devbox container (ensures image is fresh)
 create env=default_env: (build env)
