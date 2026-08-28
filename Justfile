@@ -24,3 +24,17 @@ rm env=default_env:
 # Update tools inside the image (requires a fresh 'build')
 update env=default_env:
     podman build --no-cache -t {{env}}-base:latest {{env}}
+
+# Start PostgreSQL server inside the devbox (initializes DB cluster if it doesn't exist)
+pg-start:
+    @distrobox enter devbox -- bash -c '[ -d ~/.local/share/postgres/data ] || (mkdir -p ~/.local/share/postgres && initdb -D ~/.local/share/postgres/data && echo "unix_socket_directories = '\''/tmp'\''" >> ~/.local/share/postgres/data/postgresql.conf)'
+    distrobox enter devbox -- pg_ctl -D ~/.local/share/postgres/data -o "-k /tmp" -l ~/.local/share/postgres/logfile start
+
+# Stop PostgreSQL server inside the devbox
+pg-stop:
+    distrobox enter devbox -- pg_ctl -D ~/.local/share/postgres/data stop
+
+# Check PostgreSQL server status
+pg-status:
+    distrobox enter devbox -- pg_ctl -D ~/.local/share/postgres/data status
+

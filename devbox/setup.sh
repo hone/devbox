@@ -15,6 +15,7 @@ mkdir -p ~/.bashrc.d
     echo "export MISE_DATA_DIR=\"$MISE_DATA_DIR\""
     echo "export MISE_CONFIG_DIR=\"$MISE_CONFIG_DIR\""
     echo "export MISE_CACHE_DIR=\"$MISE_CACHE_DIR\""
+    echo "export PGHOST=\"/tmp\""
     echo "export PATH=\"$SHIMS_PATH:\$PATH\""
 } > ~/.bashrc.d/mise.sh
 
@@ -26,6 +27,7 @@ if ! grep -q "$SHIMS_PATH" ~/.config/nushell/env.nu; then
         echo "\$env.MISE_DATA_DIR = \"$MISE_DATA_DIR\""
         echo "\$env.MISE_CONFIG_DIR = \"$MISE_CONFIG_DIR\""
         echo "\$env.MISE_CACHE_DIR = \"$MISE_CACHE_DIR\""
+        echo "\$env.PGHOST = \"/tmp\""
         echo "\$env.PATH = (\$env.PATH | prepend \"$SHIMS_PATH\")"
     } >> ~/.config/nushell/env.nu
 fi
