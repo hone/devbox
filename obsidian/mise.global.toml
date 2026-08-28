@@ -6,6 +6,6 @@ experimental = true
 node = "latest"
 opencode = "latest"
 rust = "latest"
-"npm:@google/gemini-cli" = { version = "latest", depends = ["node"] }
 "npm:defuddle" = { version = "latest", depends = ["node"] }
+"aqua:openai/codex" = "latest"
 "aqua:helix-editor/helix" = { version = "latest" }

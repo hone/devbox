@@ -7,4 +7,6 @@ node = "latest"
 opencode = "latest"
 rust = "latest"
 "aqua:helix-editor/helix" = { version = "latest" }
+"aqua:openai/codex" = "latest"
 "cargo:cargo-release" = "latest"
+"npm:heroku" = "latest"
