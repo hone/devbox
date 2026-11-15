@@ -3,6 +3,7 @@ color = true
 experimental = true
 
 [tools]
+jj = "latest"
 node = "latest"
 opencode = "latest"
 rust = "1.98.1"
