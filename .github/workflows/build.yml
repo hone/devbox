@@ -1,0 +1,110 @@
+name: Build and Publish Container Images
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: build (${{ matrix.env }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [devbox, obsidian]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.env }}
+          file: ${{ matrix.env }}/Containerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: |
+            ghcr.io/hone/${{ matrix.env }}:latest
+            ghcr.io/hone/${{ matrix.env }}:sha-${{ env.SHORT_SHA }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/hone/devbox
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.env }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.env }}
+          secrets: |
+            "github_token=${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Smoke test image
+        run: |
+          docker run --rm "ghcr.io/hone/${{ matrix.env }}:latest" bash -ec '
+            test -f /etc/mise/config.toml
+            test -x /etc/mise/setup.sh
+            missing="$(mise ls --missing)"
+            if [ -n "$missing" ]; then
+              echo "Missing mise tools:" >&2
+              echo "$missing" >&2
+              exit 1
+            fi
+            mise ls --current --json | python3 -c "
+          import json, os, sys, tomllib
+          with open(\"/etc/mise/config.toml\", \"rb\") as f:
+              configured = set(tomllib.load(f).get(\"tools\", {}).keys())
+          if not configured:
+              print(\"No tools configured in /etc/mise/config.toml\", file=sys.stderr)
+              sys.exit(1)
+          data = json.load(sys.stdin)
+          if not data or len(data) < len(configured):
+              print(f\"Expected {len(configured)} configured tools, got {len(data)}: {sorted(data)}\", file=sys.stderr)
+              sys.exit(1)
+          bad = []
+          for k, vs in data.items():
+              if not vs:
+                  bad.append(k)
+                  continue
+              for v in vs:
+                  path = v.get(\"install_path\", \"\")
+                  if not v.get(\"installed\") or not path or not os.path.exists(path):
+                      bad.append(f\"{k} ({path})\")
+          if bad:
+              print(\"Uninstalled or broken tools:\", bad, file=sys.stderr)
+              sys.exit(1)
+          "
+            if [ "${{ matrix.env }}" = "devbox" ]; then
+              test -x /usr/local/bin/docker
+              pg_ctl --version
+              valkey-server --version
+            fi
+          '
+
+      - name: Log in to GHCR
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image to GHCR
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        run: |
+          docker push "ghcr.io/hone/${{ matrix.env }}:latest"
+          docker push "ghcr.io/hone/${{ matrix.env }}:sha-${{ env.SHORT_SHA }}"

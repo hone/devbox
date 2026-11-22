@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "platformAutomerge": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "packageRules": [
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["ghcr.io/ublue-os/fedora-toolbox"],
+      "schedule": ["before 6am on monday"]
+    }
+  ]
+}

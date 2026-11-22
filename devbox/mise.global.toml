@@ -3,13 +3,13 @@ color = true
 experimental = true
 
 [tools]
-jj = "latest"
-node = "latest"
-opencode = "latest"
+jj = "0.47.1"
+node = "26.13.1"
+opencode = "1.19.6"
 rust = "1.100.0"
-github-cli = "latest"
-"aqua:google-antigravity/antigravity-cli" = { version = "1.5.11" }
-"aqua:helix-editor/helix" = { version = "latest" }
-"aqua:openai/codex" = "latest"
-"cargo:cargo-release" = "latest"
-"npm:heroku" = "latest"
+github-cli = "2.105.0"
+antigravity-cli = "1.5.11"
+helix = "25.07.1"
+codex = "0.170.0"
+cargo-release = "1.1.7"
+heroku = "11.14.0"

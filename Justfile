@@ -1,17 +1,36 @@
 # Distrobox Management
 default_env := 'devbox'
 
-# Bake the base image (the slow part, run once or after config changes)
+# Pull the latest prebuilt CI image from GHCR
+pull env=default_env:
+    podman pull ghcr.io/hone/{{env}}:latest
+
+# Create the container from the prebuilt GHCR image
+create env=default_env:
+    distrobox assemble create --file {{env}}/distrobox.ini --name {{env}}
+
+# Rebuild the container from the prebuilt GHCR image
+rebuild env=default_env:
+    distrobox assemble create --file {{env}}/distrobox.ini --replace --name {{env}}
+
+# Local escape hatch: build the image on the host
 build env=default_env:
     podman build --pull -t {{env}}-base:latest {{env}}
 
-# Create the devbox container (ensures image is fresh)
-create env=default_env: (build env)
-    distrobox assemble create --file {{env}}/distrobox.ini --name {{env}}
+# Private helper: assemble from a locally built image without mutating distrobox.ini
+_assemble-local env extra_args="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tmp="$(mktemp)"
+    trap 'rm -f "$tmp"' EXIT
+    sed -e 's|^image=.*|image=localhost/{{env}}-base:latest|' -e 's|^pull=.*|pull=false|' {{env}}/distrobox.ini > "$tmp"
+    distrobox assemble create --file "$tmp" {{extra_args}} --name {{env}}
 
-# Rebuild the devbox container (lightning fast and always up-to-date)
-rebuild env=default_env: (build env)
-    distrobox assemble create --file {{env}}/distrobox.ini --replace --name {{env}}
+# Local escape hatch: build locally and create the container without mutating distrobox.ini
+create-local env=default_env: (build env) (_assemble-local env "")
+
+# Local escape hatch: build locally and replace the container without mutating distrobox.ini
+rebuild-local env=default_env: (build env) (_assemble-local env "--replace")
 
 # Enter the devbox container
 enter env=default_env:
@@ -21,7 +40,7 @@ enter env=default_env:
 rm env=default_env:
     distrobox assemble rm --file {{env}}/distrobox.ini --name {{env}}
 
-# Update tools inside the image (requires a fresh 'build')
+# Local escape hatch: uncached rebuild of the image on the host
 update env=default_env:
     podman build --no-cache -t {{env}}-base:latest {{env}}
 
@@ -37,4 +56,3 @@ pg-stop:
 # Check PostgreSQL server status
 pg-status:
     distrobox enter devbox -- pg_ctl -D ~/.local/share/postgres/data status
-
