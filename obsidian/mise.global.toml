@@ -6,6 +6,6 @@ experimental = true
 node = "26.13.1"
 opencode = "1.19.6"
 rust = "1.100.0"
-"npm:defuddle" = { version = "0.19.11", depends = ["node"] }
+"npm:defuddle" = { version = "0.19.13", depends = ["node"] }
 codex = "0.170.0"
 helix = "25.07.1"
