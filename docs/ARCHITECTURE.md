@@ -27,7 +27,7 @@ This repository defines reproducible, disposable Distrobox development container
    - Keeping `mise` state under `/usr/local/share/mise` and `/etc/mise` prevents collisions with the host's `$HOME` (which Distrobox mounts into the container).
 
 3. **CI Smoke-Test-Before-Push & Serialized Publishing**
-   - `.github/workflows/build.yml` builds `devbox` and `obsidian` (`linux/amd64`, GHA BuildKit cache, `load: true`, `push: false`), runs an in-container smoke test verifying `/etc/mise/setup.sh`, zero missing `mise` tools, all configured tools installed with valid on-disk paths (plus `docker`, `pg_ctl`, and `valkey-server` for `devbox`), and only pushes `:latest` + `:sha-<short>` to GHCR on `main` (`push` or `workflow_dispatch`).
+   - `.github/workflows/build.yml` builds `devbox` and `obsidian` (`linux/amd64`, GHA BuildKit cache, `load: true`, `push: false`), runs an in-container smoke test verifying `/etc/mise/setup.sh`, `wl-paste`/`wl-copy` (`wl-clipboard`), zero missing `mise` tools, all configured tools installed with valid on-disk paths (plus `docker`, `pg_ctl`, and `valkey-server` for `devbox`), and only pushes `:latest` + `:sha-<short>` to GHCR on `main` (`push` or `workflow_dispatch`).
    - Top-level `concurrency` cancels stale PR builds while queuing `main` publishes sequentially so `:latest` cannot race.
 
 4. **Shell-Agnostic Shim Integration (`setup.sh`)**

@@ -3,7 +3,7 @@ LABEL org.opencontainers.image.source="https://github.com/hone/devbox"
 
 # 1. Install system dependencies & mise
 RUN dnf config-manager addrepo --from-repofile=https://mise.jdx.dev/rpm/mise.repo && \
-    dnf install -y bubblewrap git gcc gcc-c++ make pkgconf openssl-devel sqlite-devel curl unzip libatomic vim mise && \
+    dnf install -y bubblewrap git gcc gcc-c++ make pkgconf openssl-devel sqlite-devel curl unzip libatomic vim mise wl-clipboard && \
     dnf clean all
 
 # 2. Bake in our GitOps configuration

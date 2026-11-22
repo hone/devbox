@@ -15,6 +15,6 @@ GitOps-managed development container definitions built in **GitHub Actions** (pu
 - **VCS:** Colocated Jujutsu (`jj`) + Git repository. Keep `.gwendolyn/` ignored in `.gitignore`.
 - **Spec-Driven Development:** Use `docs/specs/` for features (`NNN-feature-name/` with `rfc.md`, `spec.md`, `tasks.md`) and small internal changes (`NNN-name.md`), and keep `docs/ARCHITECTURE.md` up to date when architecture changes.
 - **Verification:**
-  - Contract tests: `python3 tests/verify_001_ci_images_and_renovate.py` (includes `bash -n` / `sh -n` checks on `*/setup.sh` and `*/docker.sh`).
+  - Contract tests: `python3 tests/verify_001_ci_images_and_renovate.py` and `python3 tests/verify_002_wl_clipboard.py` (includes `bash -n` / `sh -n` checks on `*/setup.sh` and `*/docker.sh`).
   - Containerfiles & `mise.global.toml`: verified in CI via `.github/workflows/build.yml`, or locally on the host with `just build <env>` / `just rebuild-local <env>` when Podman is available.
   - Note that `just` / `podman` / `distrobox` manage host-side containers and may not be runnable from inside a sandboxed container session.

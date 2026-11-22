@@ -58,6 +58,8 @@ jobs:
           docker run --rm "ghcr.io/hone/${{ matrix.env }}:latest" bash -ec '
             test -f /etc/mise/config.toml
             test -x /etc/mise/setup.sh
+            wl-paste --version
+            wl-copy --version
             missing="$(mise ls --missing)"
             if [ -n "$missing" ]; then
               echo "Missing mise tools:" >&2
