@@ -1,9 +1,9 @@
-FROM ghcr.io/ublue-os/fedora-toolbox:latest
+FROM ghcr.io/ublue-os/fedora-toolbox:latest@sha256:152d578a893dc0d96239f92b50e46d3d238c0b4aebca89094ee118f3a407af77
+LABEL org.opencontainers.image.source="https://github.com/hone/devbox"
 
 # 1. Install system dependencies & mise
 RUN dnf config-manager addrepo --from-repofile=https://mise.jdx.dev/rpm/mise.repo && \
     dnf install -y bubblewrap git gcc gcc-c++ make pkgconf openssl-devel sqlite-devel curl unzip libatomic vim mise perl-FindBin perl-IPC-Cmd perl-Time-Piece perl-File-Compare perl-File-Copy perl-Math-BigInt perl-Pod-Html postgresql-server postgresql valkey && \
-
     dnf clean all
 
 # 2. Bake in our GitOps configuration
@@ -19,7 +19,11 @@ ENV MISE_DATA_DIR=/usr/local/share/mise
 ENV MISE_CONFIG_DIR=/etc/mise
 ENV MISE_CACHE_DIR=/usr/local/share/mise/cache
 
-RUN mise install
+RUN --mount=type=secret,id=github_token,required=false \
+    if [ -s /run/secrets/github_token ]; then \
+        export GITHUB_TOKEN="$(cat /run/secrets/github_token)"; \
+    fi && \
+    mise install
 
 # 4. Hand over ownership to the devbox user (UID 1000)
 # This allows the user to run 'mise install' and update the cache without permission issues.
