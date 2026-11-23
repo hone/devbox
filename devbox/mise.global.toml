@@ -5,7 +5,7 @@ experimental = true
 [tools]
 jj = "0.47.1"
 node = "26.13.1"
-opencode = "2.3.2"
+opencode = "2.4.0"
 rust = "1.100.0"
 github-cli = "2.105.0"
 antigravity-cli = "1.5.14"
