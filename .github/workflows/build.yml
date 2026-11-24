@@ -16,8 +16,22 @@ permissions:
   packages: write
 
 jobs:
+  contract-tests:
+    name: contract-tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Run contract tests
+        run: python3 -B -m unittest discover -s tests -p 'verify_*.py' -v
+
   build:
     name: build (${{ matrix.env }})
+    needs: contract-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
