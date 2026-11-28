@@ -106,6 +106,7 @@ jobs:
           "
             if [ "${{ matrix.env }}" = "devbox" ]; then
               test -x /usr/local/bin/docker
+              test -x /usr/local/bin/podman
               pg_ctl --version
               valkey-server --version
             fi

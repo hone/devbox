@@ -8,7 +8,7 @@ This repository defines reproducible, disposable Distrobox development container
 | Path | Purpose |
 |------|---------|
 | [Justfile](../Justfile) | Host-side task runner for pull-first container lifecycle, local build escape hatches, and on-demand services (`default_env := 'devbox'`). |
-| [devbox/](../devbox/) | Primary development container (`Containerfile`, `distrobox.ini`, `mise.global.toml`, `setup.sh`, `docker.sh`). |
+| [devbox/](../devbox/) | Primary development container (`Containerfile`, `distrobox.ini`, `mise.global.toml`, `setup.sh`, `docker.sh`, `podman.sh`). |
 | [obsidian/](../obsidian/) | Secondary container (`Containerfile`, `distrobox.ini`, `mise.global.toml`, `setup.sh`). |
 | [.github/workflows/build.yml](../.github/workflows/build.yml) | Matrix CI workflow building, smoke-testing, and publishing `devbox` and `obsidian` images to GHCR. |
 | [renovate.json](../renovate.json) | Renovate GitHub App config (`mise`, `dockerfile` digest pinning, GHA SHA pinning, PR platform automerge, weekly base-image cadence). |
@@ -27,7 +27,7 @@ This repository defines reproducible, disposable Distrobox development container
    - Keeping `mise` state under `/usr/local/share/mise` and `/etc/mise` prevents collisions with the host's `$HOME` (which Distrobox mounts into the container).
 
 3. **CI Smoke-Test-Before-Push & Serialized Publishing**
-   - `.github/workflows/build.yml` builds `devbox` and `obsidian` (`linux/amd64`, GHA BuildKit cache, `load: true`, `push: false`), runs an in-container smoke test verifying `/etc/mise/setup.sh`, `wl-paste`/`wl-copy` (`wl-clipboard`), zero missing `mise` tools, all configured tools installed with valid on-disk paths (plus `docker`, `pg_ctl`, and `valkey-server` for `devbox`), and only pushes `:latest` + `:sha-<short>` to GHCR on `main` (`push` or `workflow_dispatch`).
+   - `.github/workflows/build.yml` builds `devbox` and `obsidian` (`linux/amd64`, GHA BuildKit cache, `load: true`, `push: false`), runs an in-container smoke test verifying `/etc/mise/setup.sh`, `wl-paste`/`wl-copy` (`wl-clipboard`), zero missing `mise` tools, all configured tools installed with valid on-disk paths (plus `docker`, `podman`, `pg_ctl`, and `valkey-server` for `devbox`), and only pushes `:latest` + `:sha-<short>` to GHCR on `main` (`push` or `workflow_dispatch`).
    - Top-level `concurrency` cancels stale PR builds while queuing `main` publishes sequentially so `:latest` cannot race.
 
 4. **Shell-Agnostic Shim Integration (`setup.sh`)**
@@ -39,8 +39,8 @@ This repository defines reproducible, disposable Distrobox development container
    - Managed from the host via `just pg-start`, `just pg-stop`, and `just pg-status`, storing cluster data in `~/.local/share/postgres/data`.
    - Sockets are placed in `/tmp` (`-o "-k /tmp"` and `unix_socket_directories = '/tmp'`, paired with `PGHOST="/tmp"` in `setup.sh`) to avoid container permission issues on `/var/run/postgresql`.
 
-6. **Host Docker Forwarding (`devbox`)**
-   - `devbox/docker.sh` is baked to `/usr/local/bin/docker` and delegates to `distrobox-host-exec docker "$@"`.
+6. **Host Docker & Podman Forwarding (`devbox`)**
+   - `devbox/docker.sh` and `devbox/podman.sh` are baked to `/usr/local/bin/docker` and `/usr/local/bin/podman`, delegating to `distrobox-host-exec docker "$@"` and `distrobox-host-exec podman "$@"`.
 
 ## Container Lifecycle (`Justfile`)
 

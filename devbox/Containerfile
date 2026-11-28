@@ -32,3 +32,7 @@ RUN chown -R 1000:1000 /usr/local/share/mise /etc/mise
 # Add docker to host
 COPY docker.sh /usr/local/bin/docker
 RUN chmod +x /usr/local/bin/docker
+
+# Add podman to host
+COPY podman.sh /usr/local/bin/podman
+RUN chmod +x /usr/local/bin/podman
