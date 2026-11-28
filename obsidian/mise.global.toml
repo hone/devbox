@@ -5,7 +5,7 @@ experimental = true
 [tools]
 node = "26.13.1"
 opencode = "2.4.2"
-rust = "1.100.0"
+rust = "1.100.1"
 "npm:defuddle" = { version = "0.19.13", depends = ["node"] }
 codex = "0.170.0"
 helix = "25.07.1"
